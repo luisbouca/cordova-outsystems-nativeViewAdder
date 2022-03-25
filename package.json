@@ -1,0 +1,14 @@
+{
+  "name": "com-outsystems-nativeview-adder",
+  "version": "1.0.0",
+  "description": "",
+  "cordova": {
+    "id": "com-outsystems-nativeview-adder",
+    "platforms": []
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "",
+  "license": "ISC"
+}

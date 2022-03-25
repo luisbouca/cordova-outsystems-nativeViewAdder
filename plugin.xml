@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="com-outsystems-nativeview-adder" version="1.0.0"
+    xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <name>NativeViewAdder</name>
+
+    <js-module name="NativeViewAdder" src="www/NativeViewAdder.js">
+        <clobbers target="NativeViewAdder" />
+    </js-module>
+
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="NativeViewAdder">
+                <param name="android-package" value="com.outsystems.nativeviewadder.NativeViewAdder" />
+            </feature>
+        </config-file>
+
+        <config-file parent="/*" target="AndroidManifest.xml" />
+
+        <source-file src="src/android/NativeViewAdder.java" target-dir="src/com/outsystems/nativeviewadder" />
+    
+    </platform>
+
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="NativeViewAdder">
+                <param name="ios-package" value="NativeViewAdder" />
+            </feature>
+        </config-file>
+
+        <source-file src="src/ios/NativeViewAdder.m" />
+
+    </platform>
+</plugin>
