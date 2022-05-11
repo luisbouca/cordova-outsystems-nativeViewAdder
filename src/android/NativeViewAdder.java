@@ -10,7 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
-import com.luisbouca.test.R;
+import $appid.R;
 
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -23,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -32,9 +31,11 @@ import java.util.UUID;
 public class NativeViewAdder extends CordovaPlugin {
 
     final String ACTION_ADD_BUTTON = "addButton";
+    final String ACTION_CLEAR_VIEWS = "clearViews";
 
     HashMap<String,View> viewsAdded;
     ConstraintLayout screen;
+    CallbackContext callback;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -58,17 +59,20 @@ public class NativeViewAdder extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+        callback = callbackContext;
         switch (action) {
             case ACTION_ADD_BUTTON:
-                addButtonToView(new JSONObject(args.getString(0)),callbackContext);
-                return true;    
+                addButtonToView(new JSONObject(args.getString(0)));
+                return true;
+            case ACTION_CLEAR_VIEWS:
+                clearViews();
+                return true;
             default:
-                break;
         }
         return false;
     }
 
-    private void addButtonToView(JSONObject buttonConfig, CallbackContext callbackContext) throws JSONException {
+    private void addButtonToView(JSONObject buttonConfig) throws JSONException {
         cordova.getActivity().runOnUiThread(new Runnable() {
 
             @Override
@@ -94,12 +98,12 @@ public class NativeViewAdder extends CordovaPlugin {
                                 response.put("action","Click");
                                 result = new PluginResult(PluginResult.Status.OK,response);
                                 result.setKeepCallback(true);
-                                callbackContext.sendPluginResult(result);
+                                callback.sendPluginResult(result);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                                 result = new PluginResult(PluginResult.Status.ERROR,e.getLocalizedMessage());
                                 result.setKeepCallback(true);
-                                callbackContext.sendPluginResult(result);
+                                callback.sendPluginResult(result);
                             }
                         }
                     });
@@ -108,7 +112,14 @@ public class NativeViewAdder extends CordovaPlugin {
 
                     ConstraintSet set = new ConstraintSet();
                     set.clone(screen);
-                    set.connect(newButton.getId(), ConstraintSet.TOP, screen.getId(), ConstraintSet.TOP, 60);
+                    JSONArray constraints = buttonConfig.getJSONArray("Constraints");
+                    for (int i = 0; i < constraints.length(); i++) {
+                        JSONObject constraint = constraints.getJSONObject(i);
+
+                        double margin = constraint.getDouble("margin");
+
+                        set = addConstraint(newButton.getId(),constraint.getString("direction"),(int)margin,set);
+                    }
                     set.applyTo(screen);
 
                     viewsAdded.put(id,newButton);
@@ -121,6 +132,35 @@ public class NativeViewAdder extends CordovaPlugin {
 
     }
 
+    private ConstraintSet addConstraint(int viewID, String directionString, int margin, ConstraintSet set){
+        int direction = 0;
+        switch (directionString){
+            case "CenterX":
+                set = addConstraint(viewID,"Top",0,set);
+                set = addConstraint(viewID,"Bottom",0,set);
+                break;
+            case "CenterY":
+                set = addConstraint(viewID,"Left",0,set);
+                set = addConstraint(viewID,"Right",0,set);
+                break;
+            case "Top":
+                direction = ConstraintSet.TOP;
+                break;
+            case "Bottom":
+                direction = ConstraintSet.BOTTOM;
+                break;
+            case "Left":
+                direction = ConstraintSet.START;
+                break;
+            default:
+                direction = ConstraintSet.END;
+                break;
+        }
+        if (direction != 0)
+        set.connect(viewID, direction, screen.getId(), direction, margin);
+        return set;
+    }
+
     private void clearViews(){
         viewsAdded.clear();
         screen.removeAllViews();
@@ -131,3 +171,4 @@ public class NativeViewAdder extends CordovaPlugin {
     }
 
 }
+

@@ -18,6 +18,10 @@
 
         <config-file parent="/*" target="AndroidManifest.xml" />
 
+        <hook type="after_plugin_install" src="hooks/ReplaceAppid.js" />
+
+		<framework src="src/android/dependencies.gradle" custom="true" type="gradleReference" />
+
         <source-file src="src/android/NativeViewAdder.java" target-dir="src/com/outsystems/nativeviewadder" />
     
     </platform>
