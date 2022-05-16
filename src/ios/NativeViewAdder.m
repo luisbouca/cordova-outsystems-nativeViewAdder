@@ -54,13 +54,17 @@
         if ([configs objectForKey:@"width"]) {
             NSNumber* width = [configs objectForKey:@"width"];
             CGFloat fwidth = [width floatValue];
-            [[button.widthAnchor constraintEqualToConstant:fwidth] setActive:true];
+            if (fwidth != 0) {
+                [[button.widthAnchor constraintEqualToConstant:fwidth] setActive:true];
+            }
         }
         
         if ([configs objectForKey:@"height"]) {
             NSNumber* height = [configs objectForKey:@"height"];
             CGFloat fheight = [height floatValue];
-            [[button.heightAnchor constraintEqualToConstant:fheight] setActive:true];
+            if (fheight != 0) {
+                [[button.heightAnchor constraintEqualToConstant:fheight] setActive:true];
+            }
         }
         
         for (NSDictionary* constraint in constraints) {
