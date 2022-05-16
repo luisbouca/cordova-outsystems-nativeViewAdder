@@ -111,6 +111,18 @@ public class NativeViewAdder extends CordovaPlugin {
                     screen.addView(newButton);
 
                     ConstraintSet set = new ConstraintSet();
+                    int width = buttonConfig.optInt("width",0);
+                    if (width == 0 ){
+                        set.constrainDefaultWidth(newButton.getId(),ConstraintSet.WRAP_CONTENT);
+                    }else{
+                        set.constrainDefaultWidth(newButton.getId(),width);
+                    }
+                    int height = buttonConfig.optInt("height",0);
+                    if (height == 0 ){
+                        set.constrainDefaultHeight(newButton.getId(),ConstraintSet.WRAP_CONTENT);
+                    }else{
+                        set.constrainDefaultHeight(newButton.getId(),height);
+                    }
                     set.clone(screen);
                     JSONArray constraints = buttonConfig.getJSONArray("Constraints");
                     for (int i = 0; i < constraints.length(); i++) {

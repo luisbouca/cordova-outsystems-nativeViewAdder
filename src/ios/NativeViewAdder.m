@@ -1,11 +1,10 @@
-/********* NativeViewAdder.m Cordova Plugin Implementation *******/
+/********* cordova-outsystems-nativeview-adder.m Cordova Plugin Implementation *******/
 
 #import <Cordova/CDV.h>
 
 
 @interface NativeViewAdder : CDVPlugin {
     NSString * callback;
-    UIView *containerView;
     NSMutableDictionary* addedViews;
 }
 
@@ -16,10 +15,6 @@
 
 - (void)pluginInitialize{
     addedViews = [[NSMutableDictionary alloc] init];
-    containerView = [[UIView alloc] initWithFrame:self.webView.frame];
-    containerView.bounds = self.webView.bounds;
-    [containerView addConstraints:self.webView.constraints];
-    [self.webView.superview addSubview:containerView];
 }
 
 - (void)addButton:(CDVInvokedUrlCommand*)command
@@ -50,14 +45,26 @@
         NSArray* constraints = [configs objectForKey:@"constraints"];
         
         button.titleLabel.textColor = UIColor.whiteColor;
-        button.bounds = CGRectMake(0, 0, 200, 100);
+        [button setFrame:CGRectMake(0, 0, 200, 100)];
         
-        [containerView addSubview:button];
+        [self.webView.scrollView addSubview:button];
         
         [addedViews setObject:button forKey:uuid];
         
+        if ([configs objectForKey:@"width"]) {
+            NSNumber* width = [configs objectForKey:@"width"];
+            CGFloat fwidth = [width floatValue];
+            [[button.widthAnchor constraintEqualToConstant:fwidth] setActive:true];
+        }
+        
+        if ([configs objectForKey:@"height"]) {
+            NSNumber* height = [configs objectForKey:@"height"];
+            CGFloat fheight = [height floatValue];
+            [[button.heightAnchor constraintEqualToConstant:fheight] setActive:true];
+        }
+        
         for (NSDictionary* constraint in constraints) {
-            NSString* directionString = [[constraint objectForKey:@"direction"] stringValue];
+            NSString* directionString = [constraint objectForKey:@"direction"];
             NSLayoutAttribute direction;
             
             CGFloat margin = [[constraint objectForKey:@"margin"] floatValue];
@@ -75,8 +82,8 @@
             }else {
                 direction = NSLayoutAttributeRight;
             }
-            NSLayoutConstraint *newConstraint = [NSLayoutConstraint constraintWithItem:button attribute:direction relatedBy:NSLayoutRelationEqual toItem:containerView attribute:direction multiplier:1 constant:margin];
-            [containerView addConstraint:newConstraint];
+            NSLayoutConstraint *newConstraint = [NSLayoutConstraint constraintWithItem:button attribute:direction relatedBy:NSLayoutRelationEqual toItem:self.webView.scrollView attribute:direction multiplier:1 constant:margin];
+            [self.webView.scrollView addConstraint:newConstraint];
         }
     }
 }
